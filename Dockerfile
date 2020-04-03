@@ -17,9 +17,6 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflag
 # final stage small image
 FROM scratch
 
-COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /go/bin/github.com/prongbang/wiremock /go/bin/
-
-USER appuser
 
 ENTRYPOINT ["/go/bin/wiremock"]
