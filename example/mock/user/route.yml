@@ -1,0 +1,17 @@
+routes:
+  get_user:
+    request:
+      method: "GET"
+      url: "/api/v1/user"
+    response:
+      status: 200
+      body_file: user.json
+
+  create_user:
+    request:
+      method: "POST"
+      url: "/api/v1/user"
+    response:
+      status: 201
+      body: >
+        {"message": "success"}
