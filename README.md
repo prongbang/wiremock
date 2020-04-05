@@ -19,7 +19,7 @@ project
 #### Login
 
 ```shell script
-GET http://localhost:8000/api/v1/login
+POST http://localhost:8000/api/v1/login
 ```
 
 - route.yml
