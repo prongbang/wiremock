@@ -2,7 +2,7 @@ routes:
   get_user:
     request:
       method: "GET"
-      url: "/api/v1/user"
+      url: "/api/v1/user/{id:[0-9]+}"
     response:
       status: 200
       body_file: user.json
