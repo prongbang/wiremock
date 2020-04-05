@@ -1,9 +1,0 @@
-routes:
-  login:
-    request:
-      method: "POST"
-      url: "/api/v1/login"
-    response:
-      status: 200
-      body: >
-        {"message": "success"}

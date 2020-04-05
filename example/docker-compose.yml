@@ -1,8 +1,0 @@
-version: '3.7'
-services:
-  app_wiremock:
-    image: prongbang/wiremock
-    ports:
-      - "8000:8000"
-    volumes:
-      - "./mock:/mock"
