@@ -2,6 +2,12 @@
 
 > [Wiremock](https://hub.docker.com/r/prongbang/wiremock) Minimal Mock your APIs 
 
+## Matching Routes using gorilla/mux
+
+```
+Read doc https://github.com/gorilla/mux#matching-routes
+```
+
 ## Setup project
 
 ```shell script
@@ -39,7 +45,7 @@ routes:
 #### User
 
 ```shell script
-GET   http://localhost:8000/api/v1/user
+GET   http://localhost:8000/api/v1/user/1
 POST  http://localhost:8000/api/v1/user
 ```
 
@@ -50,7 +56,7 @@ routes:
   get_user:
     request:
       method: "GET"
-      url: "/api/v1/user"
+      url: "/api/v1/user/{id:[0-9]+}"
     response:
       status: 200
       body_file: user.json
@@ -99,3 +105,4 @@ $ wiremock
 
  -> wiremock server started on :8000
 ```
+
