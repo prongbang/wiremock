@@ -106,3 +106,6 @@ $ wiremock
  -> wiremock server started on :8000
 ```
 
+### Example Project
+
+(https://github.com/prongbang/wiremock-example)[https://github.com/prongbang/wiremock-example]
