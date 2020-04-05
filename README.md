@@ -1,4 +1,6 @@
-# Wiremock
+# Wiremock [![Build Status](https://travis-ci.org/prongbang/wiremock.svg?branch=master)](https://travis-ci.org/prongbang/wiremock) [![Docker Pulls](https://img.shields.io/docker/pulls/prongbang/wiremock.svg)](https://hub.docker.com/r/prongbang/wiremock/)
+
+> [Wiremock](https://hub.docker.com/r/prongbang/wiremock) Minimal Mock your APIs 
 
 ## Setup project
 
