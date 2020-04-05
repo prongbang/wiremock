@@ -108,4 +108,4 @@ $ wiremock
 
 ### Example Project
 
-(https://github.com/prongbang/wiremock-example)[https://github.com/prongbang/wiremock-example]
+[https://github.com/prongbang/wiremock-example](https://github.com/prongbang/wiremock-example)
