@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"gopkg.in/yaml.v2"
 )
 
 type Routes struct {
@@ -27,6 +28,7 @@ type Response struct {
 	Status   int    `yaml:"status"`
 	Body     string `yaml:"body"`
 	BodyFile string `yaml:"body_file"`
+	FileName string
 }
 
 func main() {
@@ -49,13 +51,15 @@ func main() {
 	pattern := `
 	Wiremock require pattern: 
 	project
-	├── mock
-	│   ├── login
-	│   │   └── route.yml
-	│   └── user
-	│       ├── response
-	│       │   └── user.json
-	│       └── route.yml
+	└── mock
+	   ├── login
+	   │   └── route.yml
+	   └── user
+	       ├── response
+	       │   └── user.json
+	       └── route.yml
+
+	Please back to root project.
 `
 
 	// Read dir mock
@@ -85,27 +89,9 @@ func main() {
 		for route := range routes.Routers {
 			request := routes.Routers[route].Request
 			response := routes.Routers[route].Response
-
-			r.HandleFunc(request.URL, func(w http.ResponseWriter, r *http.Request) {
-				// Log
-				log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
-
-				// Prepared response
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(response.Status)
-				if response.BodyFile != "" {
-					bodyFile := fmt.Sprintf("./mock/%s/response/%s", f.Name(), response.BodyFile)
-					source, err := ioutil.ReadFile(bodyFile)
-					if err != nil {
-						_, _ = w.Write([]byte("{}"))
-					} else {
-						_, _ = w.Write(source)
-					}
-				} else {
-					_, _ = w.Write([]byte(response.Body))
-				}
-
-			}).Methods(request.Method)
+			response.FileName = f.Name()
+			handle := NewHandler(response)
+			r.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
 		}
 	}
 
@@ -115,4 +101,41 @@ func main() {
 	fmt.Println(started)
 
 	_ = http.ListenAndServe(port, r)
+}
+
+// Handler is a model for handler router
+type Handler interface {
+	Handle(w http.ResponseWriter, r *http.Request)
+}
+
+type handler struct {
+	Resp Response
+}
+
+func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
+	// Log
+	log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
+
+	// Prepared response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(h.Resp.Status)
+	if h.Resp.BodyFile != "" {
+		bodyFile := fmt.Sprintf("./mock/%s/response/%s", h.Resp.FileName, h.Resp.BodyFile)
+		source, err := ioutil.ReadFile(bodyFile)
+		if err != nil {
+			log.Printf("%s %s\n", r.RemoteAddr, err)
+			_, _ = w.Write([]byte("{}"))
+		} else {
+			_, _ = w.Write(source)
+		}
+	} else {
+		_, _ = w.Write([]byte(h.Resp.Body))
+	}
+}
+
+// NewHandler a instance
+func NewHandler(resp Response) Handler {
+	return &handler{
+		Resp: resp,
+	}
 }
