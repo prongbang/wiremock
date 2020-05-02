@@ -1,4 +1,4 @@
-# Wiremock [![Docker Pulls](https://img.shields.io/docker/pulls/prongbang/wiremock.svg)](https://hub.docker.com/r/prongbang/wiremock/)
+# Wiremock [![Docker Pulls](https://img.shields.io/docker/pulls/prongbang/wiremock.svg)](https://hub.docker.com/r/prongbang/wiremock/) [![Image Size](https://img.shields.io/docker/image-size/prongbang/wiremock.svg)](https://hub.docker.com/r/prongbang/wiremock/)
 
 > [Wiremock](https://hub.docker.com/r/prongbang/wiremock) Minimal Mock your APIs 
 
