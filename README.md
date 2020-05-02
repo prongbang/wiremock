@@ -2,11 +2,63 @@
 
 > [Wiremock](https://hub.docker.com/r/prongbang/wiremock) Minimal Mock your APIs 
 
-## Matching Routes using gorilla/mux
+## How to run
+
+### Run with Docker
+
+```yaml
+version: '3.7'
+services:
+  app_wiremock:
+    image: prongbang/wiremock:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./mock:/mock"
+```
 
 ```
-Read doc https://github.com/gorilla/mux#matching-routes
+$ docker-compose up -d
 ```
+
+### Run with Golang
+
+```shell script
+$ go get -u github.com/prongbang/wiremock
+$ cd project
+```
+
+#### Default port `8000`
+
+```bash
+$ wiremock
+```
+
+#### Custom port `9000`
+
+```bash
+$ wiremock -port=9000
+```
+
+- Running
+
+```shell script
+  _      ___                        __  
+ | | /| / (_)______ __ _  ___  ____/ /__
+ | |/ |/ / / __/ -_)  ' \/ _ \/ __/  '_/
+ |__/|__/_/_/  \__/_/_/_/\___/\__/_/\_\
+
+
+ -> wiremock server started on :8000
+```
+
+### Example Project
+
+[https://github.com/prongbang/wiremock-example](https://github.com/prongbang/wiremock-example)
+
+## Matching Routes using gorilla/mux
+
+Read doc [https://github.com/gorilla/mux#matching-routes](https://github.com/gorilla/mux#matching-routes)
 
 ## Setup project
 
@@ -70,53 +122,3 @@ routes:
       body: >
         {"message": "success"}
 ```
-
-## How to run
-
-### Docker
-
-```yaml
-version: '3.7'
-services:
-  app_wiremock:
-    image: prongbang/wiremock
-    ports:
-      - "8000:8000"
-    volumes:
-      - "./mock:/mock"
-```
-
-### Golang
-
-```shell script
-$ go get -u github.com/prongbang/wiremock
-$ cd project
-```
-
-- Default port `8000`
-
-```bash
-$ wiremock
-```
-
-- Custom port `9000`
-
-```bash
-$ wiremock -port=9000
-```
-
-- Running
-
-```shell script
-  _      ___                        __  
- | | /| / (_)______ __ _  ___  ____/ /__
- | |/ |/ / / __/ -_)  ' \/ _ \/ __/  '_/
- |__/|__/_/_/  \__/_/_/_/\___/\__/_/\_\
-
-
- -> wiremock server started on :8000
-```
-
-### Example Project
-
-[https://github.com/prongbang/wiremock-example](https://github.com/prongbang/wiremock-example)
