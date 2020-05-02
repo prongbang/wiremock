@@ -91,7 +91,18 @@ services:
 ```shell script
 $ go get -u github.com/prongbang/wiremock
 $ cd project
+```
+
+- Default port `8000`
+
+```bash
 $ wiremock
+```
+
+- Custom port `9000`
+
+```bash
+$ wiremock -port=9000
 ```
 
 - Running
