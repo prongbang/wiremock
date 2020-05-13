@@ -29,28 +29,30 @@ func (r *route) Initial(router *mux.Router) {
 
 	// Read mock directory
 	for _, f := range files {
+		if f.IsDir() {
 
-		// Read yaml config
-		filename := fmt.Sprintf("./mock/%s/route.yml", f.Name())
-		source, err := ioutil.ReadFile(filename)
-		if err != nil {
-			panic(pattern)
-		}
+			// Read yaml config
+			filename := fmt.Sprintf("./mock/%s/route.yml", f.Name())
+			source, err := ioutil.ReadFile(filename)
+			if err != nil {
+				panic(pattern)
+			}
 
-		// Unmarshal yaml config
-		routes := Routes{}
-		err = yaml.Unmarshal(source, &routes)
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
+			// Unmarshal yaml config
+			routes := Routes{}
+			err = yaml.Unmarshal(source, &routes)
+			if err != nil {
+				log.Fatalf("error: %v", err)
+			}
 
-		// Register routers
-		for route := range routes.Routers {
-			request := routes.Routers[route].Request
-			response := routes.Routers[route].Response
-			response.FileName = f.Name()
-			handle := NewHandler(response)
-			router.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
+			// Register routers
+			for route := range routes.Routers {
+				request := routes.Routers[route].Request
+				response := routes.Routers[route].Response
+				response.FileName = f.Name()
+				handle := NewHandler(response)
+				router.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
+			}
 		}
 	}
 }
