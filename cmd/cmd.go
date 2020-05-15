@@ -9,7 +9,8 @@ import (
 
 func Run(conf config.Config) {
 	homeRoute := home.NewRoute(home.NewHandler(conf))
-	wiremockRoute := wiremock.NewRoute()
+	wiremockUseCase := wiremock.NewUseCase()
+	wiremockRoute := wiremock.NewRoute(wiremockUseCase)
 	apis := api.NewAPI(homeRoute, wiremockRoute)
 	apis.Register(conf)
 }

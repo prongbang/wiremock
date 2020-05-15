@@ -10,8 +10,9 @@ type Routers struct {
 }
 
 type Request struct {
-	Method string `yaml:"method"`
-	URL    string `yaml:"url"`
+	Method string                 `yaml:"method"`
+	URL    string                 `yaml:"url"`
+	Body   map[string]interface{} `yaml:"body"`
 }
 
 type Response struct {
@@ -19,4 +20,14 @@ type Response struct {
 	Body     string `yaml:"body"`
 	BodyFile string `yaml:"body_file"`
 	FileName string
+}
+
+type Matching struct {
+	Result []byte
+	Count  int
+}
+
+type Parameters struct {
+	HttpReqBody map[string]interface{}
+	MockReqBody map[string]interface{}
 }
