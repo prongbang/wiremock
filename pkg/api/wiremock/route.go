@@ -1,11 +1,11 @@
 package wiremock
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
 	"github.com/gorilla/mux"
+	"github.com/prongbang/wiremock/pkg/config"
 	"github.com/prongbang/wiremock/pkg/status"
 	"gopkg.in/yaml.v2"
 )
@@ -15,6 +15,7 @@ type Route interface {
 }
 
 type route struct {
+	UseCase UseCase
 }
 
 func (r *route) Initial(router *mux.Router) {
@@ -22,7 +23,7 @@ func (r *route) Initial(router *mux.Router) {
 	pattern := status.Pattern()
 
 	// Read dir mock
-	files, err := ioutil.ReadDir("./mock")
+	files, err := ioutil.ReadDir(config.MockPath)
 	if err != nil {
 		panic(pattern)
 	}
@@ -32,11 +33,7 @@ func (r *route) Initial(router *mux.Router) {
 		if f.IsDir() {
 
 			// Read yaml config
-			filename := fmt.Sprintf("./mock/%s/route.yml", f.Name())
-			source, err := ioutil.ReadFile(filename)
-			if err != nil {
-				panic(pattern)
-			}
+			source := r.UseCase.ReadSourceRouteYml(f.Name())
 
 			// Unmarshal yaml config
 			routes := Routes{}
@@ -47,16 +44,18 @@ func (r *route) Initial(router *mux.Router) {
 
 			// Register routers
 			for route := range routes.Routers {
-				request := routes.Routers[route].Request
-				response := routes.Routers[route].Response
-				response.FileName = f.Name()
-				handle := NewHandler(response)
+				routers := routes.Routers[route]
+				request := routers.Request
+				routers.Response.FileName = f.Name()
+				handle := NewHandler(r.UseCase, routers)
 				router.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
 			}
 		}
 	}
 }
 
-func NewRoute() Route {
-	return &route{}
+func NewRoute(useCase UseCase) Route {
+	return &route{
+		UseCase: useCase,
+	}
 }

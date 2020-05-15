@@ -1,10 +1,10 @@
 package wiremock
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/prongbang/wiremock/pkg/api/core"
 )
 
 // Handler is a model for handler router
@@ -13,33 +13,41 @@ type Handler interface {
 }
 
 type handler struct {
-	Resp Response
+	UseCase UseCase
+	Routers Routers
 }
 
 func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Log
 	log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
 
+	// Prepared request
+	reqt := h.Routers.Request
+	data := core.Bind(reqt.Body, r)
+
+	// Process parameter matching
+	matching := h.UseCase.ParameterMatching(Parameters{
+		HttpReqBody: data,
+		MockReqBody: reqt.Body,
+	})
+
 	// Prepared response
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(h.Resp.Status)
-	if h.Resp.BodyFile != "" {
-		bodyFile := fmt.Sprintf("./mock/%s/response/%s", h.Resp.FileName, h.Resp.BodyFile)
-		source, err := ioutil.ReadFile(bodyFile)
-		if err != nil {
-			log.Printf("%s %s\n", r.RemoteAddr, err)
-			_, _ = w.Write([]byte("{}"))
-		} else {
-			_, _ = w.Write(source)
-		}
+	if len(reqt.Body) == matching.Count {
+		resp := h.Routers.Response
+		w.WriteHeader(resp.Status)
+		response := h.UseCase.GetMockResponse(resp)
+		_, _ = w.Write(response)
 	} else {
-		_, _ = w.Write([]byte(h.Resp.Body))
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write(matching.Result)
 	}
 }
 
 // NewHandler a instance
-func NewHandler(resp Response) Handler {
+func NewHandler(useCase UseCase, routers Routers) Handler {
 	return &handler{
-		Resp: resp,
+		UseCase: useCase,
+		Routers: routers,
 	}
 }
