@@ -78,6 +78,11 @@ project
 
 ```shell script
 POST http://localhost:8000/api/v1/login
+BODY
+{
+  "username": "admin"
+  "password": "pass"
+}
 ```
 
 - route.yml
@@ -88,6 +93,9 @@ routes:
     request:
       method: "POST"
       url: "/api/v1/login"
+    body:
+      username: "admin"
+      password: "pass"
     response:
       status: 200
       body: >

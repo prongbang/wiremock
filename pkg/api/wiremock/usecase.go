@@ -21,12 +21,13 @@ type useCase struct {
 func (u *useCase) ParameterMatching(params Parameters) Matching {
 	require := map[string]interface{}{}
 	errors := map[string]interface{}{}
-	matching := 0
+	matchingHeader := 0
+	matchingBody := 0
 	for k, v := range params.MockReqBody {
 		vs := fmt.Sprintf("%v", v)
 		ks := fmt.Sprintf("%v", params.HttpReqBody[k])
 		if vs == ks {
-			matching = matching + 1
+			matchingBody = matchingBody + 1
 			continue
 		}
 		if params.HttpReqBody[k] == nil {
@@ -35,6 +36,21 @@ func (u *useCase) ParameterMatching(params Parameters) Matching {
 			errors[k] = "The " + k + " not match"
 		}
 	}
+
+	for k, v := range params.MockReqHeader {
+		vs := fmt.Sprintf("%v", v)
+		ks := fmt.Sprintf("%v", params.HttpReqHeader[k])
+		if vs == ks {
+			matchingHeader = matchingHeader + 1
+			continue
+		}
+		if params.HttpReqHeader[k] == nil {
+			errors[k] = "Require header " + k
+		} else {
+			errors[k] = "The header " + k + " not match"
+		}
+	}
+
 	if len(errors) > 0 {
 		require["errors"] = errors
 		require["message"] = "validation error"
@@ -46,9 +62,12 @@ func (u *useCase) ParameterMatching(params Parameters) Matching {
 		result = []byte("{}")
 	}
 
+	isMatchHeader := len(params.MockReqHeader) == matchingHeader
+	isMatchBody := len(params.MockReqBody) == matchingBody
+
 	return Matching{
-		Result: result,
-		Count:  matching,
+		Result:  result,
+		IsMatch: isMatchBody && isMatchHeader,
 	}
 }
 
