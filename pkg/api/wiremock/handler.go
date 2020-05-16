@@ -22,21 +22,22 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
 
 	// Prepared request
-	reqt := h.Routers.Request
-	data := core.Bind(reqt.Body, r)
+	header := core.BindHeader(h.Routers.Request.Header, r)
+	body := core.BindBody(h.Routers.Request.Body, r)
 
 	// Process parameter matching
 	matching := h.UseCase.ParameterMatching(Parameters{
-		HttpReqBody: data,
-		MockReqBody: reqt.Body,
+		HttpReqHeader: header,
+		MockReqHeader: h.Routers.Request.Header,
+		HttpReqBody:   body,
+		MockReqBody:   h.Routers.Request.Body,
 	})
 
 	// Prepared response
 	w.Header().Set("Content-Type", "application/json")
-	if len(reqt.Body) == matching.Count {
-		resp := h.Routers.Response
-		w.WriteHeader(resp.Status)
-		response := h.UseCase.GetMockResponse(resp)
+	if matching.IsMatch {
+		w.WriteHeader(h.Routers.Response.Status)
+		response := h.UseCase.GetMockResponse(h.Routers.Response)
 		_, _ = w.Write(response)
 	} else {
 		w.WriteHeader(http.StatusBadRequest)

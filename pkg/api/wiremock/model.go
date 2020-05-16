@@ -12,6 +12,7 @@ type Routers struct {
 type Request struct {
 	Method string                 `yaml:"method"`
 	URL    string                 `yaml:"url"`
+	Header map[string]interface{} `yaml:"header"`
 	Body   map[string]interface{} `yaml:"body"`
 }
 
@@ -23,11 +24,13 @@ type Response struct {
 }
 
 type Matching struct {
-	Result []byte
-	Count  int
+	Result  []byte
+	IsMatch bool
 }
 
 type Parameters struct {
-	HttpReqBody map[string]interface{}
-	MockReqBody map[string]interface{}
+	HttpReqHeader map[string]interface{}
+	MockReqHeader map[string]interface{}
+	HttpReqBody   map[string]interface{}
+	MockReqBody   map[string]interface{}
 }
