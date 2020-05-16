@@ -78,7 +78,9 @@ project
 
 ```shell script
 POST http://localhost:8000/api/v1/login
-BODY
+Header
+  Api-Key: "ed2b7d14-3999-408e-9bb8-4ea739f2bcb5"
+Body
 {
   "username": "admin"
   "password": "pass"
@@ -93,6 +95,8 @@ routes:
     request:
       method: "POST"
       url: "/api/v1/login"
+    header:
+      Api-Key: "ed2b7d14-3999-408e-9bb8-4ea739f2bcb5"
     body:
       username: "admin"
       password: "pass"
