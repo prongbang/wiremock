@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/prongbang/wiremock/pkg/api/home"
 	"github.com/prongbang/wiremock/pkg/api/wiremock"
@@ -24,13 +25,14 @@ func (a *api) Register(cfg config.Config) {
 	status.Banner()
 
 	r := mux.NewRouter()
+	originsOk := handlers.AllowedOrigins([]string{"*"})
 
 	a.HomeRoute.Initial(r)
 	a.WiremockRoute.Initial(r)
 
 	status.Started(cfg.Port)
 
-	_ = http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), r)
+	_ = http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), handlers.CORS(originsOk)(r))
 }
 
 // NewAPI provide apis
