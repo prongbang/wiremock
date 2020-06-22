@@ -25,14 +25,16 @@ func (a *api) Register(cfg config.Config) {
 	status.Banner()
 
 	r := mux.NewRouter()
-	originsOk := handlers.AllowedOrigins([]string{"*"})
+	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "X-Platforms"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PATCH", "PUT", "HEAD", "OPTIONS"})
+	origins := handlers.AllowedOrigins([]string{"*"})
 
 	a.HomeRoute.Initial(r)
 	a.WiremockRoute.Initial(r)
 
 	status.Started(cfg.Port)
 
-	_ = http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), handlers.CORS(originsOk)(r))
+	_ = http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), handlers.CORS(headers, methods, origins)(r))
 }
 
 // NewAPI provide apis
