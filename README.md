@@ -95,11 +95,11 @@ routes:
     request:
       method: "POST"
       url: "/api/v1/login"
-    header:
-      Api-Key: "ed2b7d14-3999-408e-9bb8-4ea739f2bcb5"
-    body:
-      username: "admin"
-      password: "pass"
+      header:
+        Api-Key: "ed2b7d14-3999-408e-9bb8-4ea739f2bcb5"
+      body:
+        username: "admin"
+        password: "pass"
     response:
       status: 200
       body: >
