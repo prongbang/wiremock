@@ -134,3 +134,45 @@ routes:
       body: >
         {"message": "success"}
 ```
+
+### User with multiple case
+
+```yaml
+routes:
+  users:
+    request:
+      method: "POST"
+      url: "/api/v1/user"
+      header:
+        Api-Key: "ABC"
+      cases:
+        user_history:
+          body:
+            action: "transaction"
+          response:
+            status: 200
+            body_file: user-history.json
+        user_check_consent:
+          body:
+            action: "consent"
+            accept: ""
+          response:
+            status: 200
+            body_file: user-check-consent.json
+        user_accept_consent:
+          body:
+            action: "consent"
+            accept: "Y"
+          response:
+            status: 200
+            body_file: user-accept-consent.json
+        get_profile:
+          body:
+            username: "*"
+            userId: "*"
+          response:
+            status: 200
+            body_file: profile-self.json
+```
+
+```*``` - field required.
