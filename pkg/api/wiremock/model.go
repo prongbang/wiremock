@@ -14,6 +14,7 @@ type Request struct {
 	URL    string                 `yaml:"url"`
 	Header map[string]interface{} `yaml:"header"`
 	Body   map[string]interface{} `yaml:"body"`
+	Cases  map[string]Cases       `yaml:"cases"`
 }
 
 type Response struct {
@@ -28,9 +29,28 @@ type Matching struct {
 	IsMatch bool
 }
 
+type CaseMatching struct {
+	Result  []byte
+	IsMatch bool
+	Case    Cases
+}
+
+type ReqHeader struct {
+	Http map[string]interface{}
+	Mock map[string]interface{}
+}
+
+type ReqBody struct {
+	Http map[string]interface{}
+	Mock map[string]interface{}
+}
+
 type Parameters struct {
-	HttpReqHeader map[string]interface{}
-	MockReqHeader map[string]interface{}
-	HttpReqBody   map[string]interface{}
-	MockReqBody   map[string]interface{}
+	ReqHeader ReqHeader
+	ReqBody   ReqBody
+}
+
+type Cases struct {
+	Body     map[string]interface{} `yaml:"body"`
+	Response Response               `yaml:"response"`
 }

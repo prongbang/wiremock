@@ -10,6 +10,7 @@ import (
 )
 
 type UseCase interface {
+	CasesMatching(path string, cases map[string]Cases, params Parameters) CaseMatching
 	ParameterMatching(params Parameters) Matching
 	GetMockResponse(resp Response) []byte
 	ReadSourceRouteYml(routeName string) []byte
@@ -18,33 +19,100 @@ type UseCase interface {
 type useCase struct {
 }
 
+func (u *useCase) CasesMatching(path string, cases map[string]Cases, params Parameters) CaseMatching {
+	// Process header matching
+	require := map[string]interface{}{}
+	errors := map[string]interface{}{}
+	matchingHeader := 0
+	for k, v := range params.ReqBody.Mock {
+		vs := fmt.Sprintf("%v", v)
+		ks := fmt.Sprintf("%v", params.ReqHeader.Http[k])
+		if vs == ks {
+			matchingHeader = matchingHeader + 1
+			continue
+		}
+		if params.ReqHeader.Http[k] == nil {
+			errors[k] = "Require header " + k
+		} else {
+			errors[k] = "The header " + k + " not match"
+		}
+	}
+	if len(errors) > 0 {
+		require["errors"] = errors
+	}
+	require["message"] = "validation error"
+	require["status"] = "error"
+	result, err := json.Marshal(require)
+	if err != nil {
+		result = []byte("{}")
+	}
+	matchingHeaderRequest := len(params.ReqBody.Mock) == matchingHeader
+
+	// Process body matching
+	matchingBodyRequest := false
+	var foundCase Cases
+	for _, vMock := range cases {
+		matchingBody := 0
+		vMock.Response.FileName = path
+		for ck, cv := range vMock.Body {
+			vs := fmt.Sprintf("%v", cv)
+			ks := fmt.Sprintf("%v", params.ReqBody.Http[ck])
+
+			// Check require field value is not empty
+			if vs == "*" {
+				if params.ReqBody.Http[ck] != nil {
+					matchingBody = matchingBody + 1
+				}
+			}
+
+			// Value matching
+			if vs == ks {
+				matchingBody = matchingBody + 1
+			}
+		}
+
+		// Contains value
+		matchingBodyRequest = len(vMock.Body) == matchingBody
+		if matchingBodyRequest {
+			foundCase = vMock
+			break
+		}
+	}
+
+	return CaseMatching{
+		IsMatch: matchingBodyRequest && matchingHeaderRequest,
+		Result:  result,
+		Case:    foundCase,
+	}
+}
+
 func (u *useCase) ParameterMatching(params Parameters) Matching {
 	require := map[string]interface{}{}
 	errors := map[string]interface{}{}
 	matchingHeader := 0
 	matchingBody := 0
-	for k, v := range params.MockReqBody {
+	for k, v := range params.ReqBody.Mock {
 		vs := fmt.Sprintf("%v", v)
-		ks := fmt.Sprintf("%v", params.HttpReqBody[k])
+		ks := fmt.Sprintf("%v", params.ReqBody.Http[k])
 		if vs == ks {
 			matchingBody = matchingBody + 1
 			continue
 		}
-		if params.HttpReqBody[k] == nil {
+		if params.ReqBody.Http[k] == nil {
 			errors[k] = "Require " + k
 		} else {
 			errors[k] = "The " + k + " not match"
 		}
 	}
 
-	for k, v := range params.MockReqHeader {
+	for k, v := range params.ReqHeader.Mock {
 		vs := fmt.Sprintf("%v", v)
-		ks := fmt.Sprintf("%v", params.HttpReqHeader[k])
+		ks := fmt.Sprintf("%v", params.ReqHeader.Http[k])
 		if vs == ks {
 			matchingHeader = matchingHeader + 1
 			continue
 		}
-		if params.HttpReqHeader[k] == nil {
+		if params.ReqHeader.Http[k] == nil {
 			errors[k] = "Require header " + k
 		} else {
 			errors[k] = "The header " + k + " not match"
@@ -62,8 +130,8 @@ func (u *useCase) ParameterMatching(params Parameters) Matching {
 		result = []byte("{}")
 	}
 
-	isMatchHeader := len(params.MockReqHeader) == matchingHeader
-	isMatchBody := len(params.MockReqBody) == matchingBody
+	isMatchHeader := len(params.ReqHeader.Mock) == matchingHeader
+	isMatchBody := len(params.ReqBody.Mock) == matchingBody
 
 	return Matching{
 		Result:  result,
