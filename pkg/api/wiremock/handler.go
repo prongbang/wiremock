@@ -18,12 +18,15 @@ type handler struct {
 }
 
 func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
+
+	// Reading form values
+	r.ParseForm()
+
 	// Log
 	log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
 
 	// Prepared request
 	header := core.BindHeader(h.Routers.Request.Header, r)
-	body := core.BindBody(h.Routers.Request.Body, r)
 
 	// Prepared response
 	w.Header().Set("Content-Type", "application/json")
@@ -32,13 +35,10 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	if len(h.Routers.Request.Cases) > 0 {
 
 		// Process cases matching
-		matching := h.UseCase.CasesMatching(h.Routers.Response.FileName, h.Routers.Request.Cases, Parameters{
+		matching := h.UseCase.CasesMatching(r, h.Routers.Response.FileName, h.Routers.Request.Cases, Parameters{
 			ReqHeader: ReqHeader{
 				Http: header,
 				Mock: h.Routers.Request.Header,
-			},
-			ReqBody: ReqBody{
-				Http: body,
 			},
 		})
 
@@ -53,6 +53,9 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
+
+		// Prepared request
+		body := core.BindBody(h.Routers.Request.Body, r)
 
 		// Process parameter matching
 		matching := h.UseCase.ParameterMatching(Parameters{
