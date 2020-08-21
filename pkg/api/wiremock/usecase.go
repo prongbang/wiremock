@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 
+	"github.com/prongbang/wiremock/pkg/api/core"
 	"github.com/prongbang/wiremock/pkg/config"
 	"github.com/prongbang/wiremock/pkg/status"
 )
 
 type UseCase interface {
-	CasesMatching(path string, cases map[string]Cases, params Parameters) CaseMatching
+	CasesMatching(r *http.Request, path string, cases map[string]Cases, params Parameters) CaseMatching
 	ParameterMatching(params Parameters) Matching
 	GetMockResponse(resp Response) []byte
 	ReadSourceRouteYml(routeName string) []byte
@@ -19,7 +21,12 @@ type UseCase interface {
 type useCase struct {
 }
 
-func (u *useCase) CasesMatching(path string, cases map[string]Cases, params Parameters) CaseMatching {
+func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]Cases, params Parameters) CaseMatching {
+
+	// Get request
+	body := map[string]interface{}{}
+	_ = json.NewDecoder(r.Body).Decode(&body)
+
 	// Process header matching
 	require := map[string]interface{}{}
 	errors := map[string]interface{}{}
@@ -51,16 +58,20 @@ func (u *useCase) CasesMatching(path string, cases map[string]Cases, params Para
 	// Process body matching
 	matchingBodyRequest := false
 	var foundCase Cases
+
 	for _, vMock := range cases {
 		matchingBody := 0
 		vMock.Response.FileName = path
+		if len(body) == 0 {
+			body = core.BindCaseBody(vMock.Body, r)
+		}
 		for ck, cv := range vMock.Body {
 			vs := fmt.Sprintf("%v", cv)
-			ks := fmt.Sprintf("%v", params.ReqBody.Http[ck])
+			ks := fmt.Sprintf("%v", body[ck])
 
 			// Check require field value is not empty
 			if vs == "*" {
-				if params.ReqBody.Http[ck] != nil {
+				if body[ck] != nil {
 					matchingBody = matchingBody + 1
 				}
 			}
