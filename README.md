@@ -146,19 +146,6 @@ routes:
       header:
         Api-Key: "ABC"
       cases:
-        user_history:
-          body:
-            action: "transaction"
-          response:
-            status: 200
-            body_file: user-history.json
-        user_check_consent:
-          body:
-            action: "consent"
-            accept: ""
-          response:
-            status: 200
-            body_file: user-check-consent.json
         user_accept_consent:
           body:
             action: "consent"
