@@ -3,17 +3,15 @@ package wiremock
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
-
+	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/wiremock/pkg/api/core"
 	"github.com/prongbang/wiremock/pkg/config"
 	"github.com/prongbang/wiremock/pkg/status"
+	"io/ioutil"
 )
 
 type UseCase interface {
-	CasesMatching(r *http.Request, path string, cases map[string]Cases, params Parameters) CaseMatching
+	CasesMatching(c *fiber.Ctx, path string, cases map[string]Cases, params Parameters) CaseMatching
 	ParameterMatching(params Parameters) Matching
 	GetMockResponse(resp Response) []byte
 	ReadSourceRouteYml(routeName string) []byte
@@ -22,11 +20,11 @@ type UseCase interface {
 type useCase struct {
 }
 
-func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]Cases, params Parameters) CaseMatching {
+func (u *useCase) CasesMatching(c *fiber.Ctx, path string, cases map[string]Cases, params Parameters) CaseMatching {
 
 	// Get request
 	body := map[string]interface{}{}
-	_ = json.NewDecoder(r.Body).Decode(&body)
+	_ = c.BodyParser(&body)
 
 	// Log
 	b, _ := json.Marshal(body)
@@ -36,14 +34,14 @@ func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]C
 	require := map[string]interface{}{}
 	errors := map[string]interface{}{}
 	matchingHeader := 0
-	for k, v := range params.ReqBody.Mock {
+	for k, v := range params.ReqBody.MockBody {
 		vs := fmt.Sprintf("%v", v)
-		ks := fmt.Sprintf("%v", params.ReqHeader.Http[k])
+		ks := fmt.Sprintf("%v", params.ReqHeader.HttpHeader[k])
 		if vs == ks {
 			matchingHeader = matchingHeader + 1
 			continue
 		}
-		if params.ReqHeader.Http[k] == nil {
+		if params.ReqHeader.HttpHeader[k] == nil {
 			errors[k] = "Require header " + k
 		} else {
 			errors[k] = "The header " + k + " not match"
@@ -58,7 +56,7 @@ func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]C
 	if err != nil {
 		result = []byte("{}")
 	}
-	matchingHeaderRequest := len(params.ReqBody.Mock) == matchingHeader
+	matchingHeaderRequest := len(params.ReqBody.MockBody) == matchingHeader
 
 	// Process body matching
 	matchingBodyRequest := false
@@ -68,11 +66,11 @@ func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]C
 		matchingBody := 0
 		vMock.Response.FileName = path
 		if len(body) == 0 {
-			body = core.BindCaseBody(vMock.Body, r)
+			body = core.BindCaseBody(vMock.Body, c)
 
 			// Log
-			b, _ := json.Marshal(body)
-			log.Printf("%s\n", string(b))
+			bd, _ := json.Marshal(body)
+			fmt.Printf("%s\n", string(bd))
 		}
 		for ck, cv := range vMock.Body {
 			vs := fmt.Sprintf("%v", cv)
@@ -111,28 +109,28 @@ func (u *useCase) ParameterMatching(params Parameters) Matching {
 	errors := map[string]interface{}{}
 	matchingHeader := 0
 	matchingBody := 0
-	for k, v := range params.ReqBody.Mock {
+	for k, v := range params.ReqBody.MockBody {
 		vs := fmt.Sprintf("%v", v)
-		ks := fmt.Sprintf("%v", params.ReqBody.Http[k])
+		ks := fmt.Sprintf("%v", params.ReqBody.HttpBody[k])
 		if vs == ks {
 			matchingBody = matchingBody + 1
 			continue
 		}
-		if params.ReqBody.Http[k] == nil {
+		if params.ReqBody.HttpBody[k] == nil {
 			errors[k] = "Require " + k
 		} else {
 			errors[k] = "The " + k + " not match"
 		}
 	}
 
-	for k, v := range params.ReqHeader.Mock {
+	for k, v := range params.ReqHeader.MockHeader {
 		vs := fmt.Sprintf("%v", v)
-		ks := fmt.Sprintf("%v", params.ReqHeader.Http[k])
+		ks := fmt.Sprintf("%v", params.ReqHeader.HttpHeader[k])
 		if vs == ks {
 			matchingHeader = matchingHeader + 1
 			continue
 		}
-		if params.ReqHeader.Http[k] == nil {
+		if params.ReqHeader.HttpHeader[k] == nil {
 			errors[k] = "Require header " + k
 		} else {
 			errors[k] = "The header " + k + " not match"
@@ -150,8 +148,8 @@ func (u *useCase) ParameterMatching(params Parameters) Matching {
 		result = []byte("{}")
 	}
 
-	isMatchHeader := len(params.ReqHeader.Mock) == matchingHeader
-	isMatchBody := len(params.ReqBody.Mock) == matchingBody
+	isMatchHeader := len(params.ReqHeader.MockHeader) == matchingHeader
+	isMatchBody := len(params.ReqBody.MockBody) == matchingBody
 
 	return Matching{
 		Result:  result,

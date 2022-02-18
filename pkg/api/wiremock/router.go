@@ -1,24 +1,22 @@
 package wiremock
 
 import (
-	"io/ioutil"
-	"log"
-
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/wiremock/pkg/config"
 	"github.com/prongbang/wiremock/pkg/status"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
 )
 
-type Route interface {
-	Initial(router *mux.Router)
+type Router interface {
+	Initial(app *fiber.App)
 }
 
 type route struct {
 	UseCase UseCase
 }
 
-func (r *route) Initial(router *mux.Router) {
+func (r *route) Initial(app *fiber.App) {
 
 	pattern := status.Pattern()
 
@@ -39,22 +37,23 @@ func (r *route) Initial(router *mux.Router) {
 			routes := Routes{}
 			err = yaml.Unmarshal(source, &routes)
 			if err != nil {
-				log.Fatalf("error: %v", err)
+				panic(err)
 			}
 
 			// Register routers
-			for route := range routes.Routers {
-				routers := routes.Routers[route]
+			for rte := range routes.Routers {
+				routers := routes.Routers[rte]
 				request := routers.Request
 				routers.Response.FileName = f.Name()
 				handle := NewHandler(r.UseCase, routers)
-				router.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
+				//router.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
+				app.Add(request.Method, request.URL, handle.Handle)
 			}
 		}
 	}
 }
 
-func NewRoute(useCase UseCase) Route {
+func NewRouter(useCase UseCase) Router {
 	return &route{
 		UseCase: useCase,
 	}

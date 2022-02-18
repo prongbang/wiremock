@@ -18,9 +18,10 @@ type Request struct {
 }
 
 type Response struct {
-	Status   int    `yaml:"status"`
-	Body     string `yaml:"body"`
-	BodyFile string `yaml:"body_file"`
+	Status   int                    `yaml:"status"`
+	Header   map[string]interface{} `yaml:"header"`
+	Body     string                 `yaml:"body"`
+	BodyFile string                 `yaml:"body_file"`
 	FileName string
 }
 
@@ -36,17 +37,22 @@ type CaseMatching struct {
 }
 
 type ReqHeader struct {
-	Http map[string]interface{}
-	Mock map[string]interface{}
+	HttpHeader map[string]interface{}
+	MockHeader map[string]interface{}
+}
+
+type ResHeader struct {
+	MockHeader map[string]interface{}
 }
 
 type ReqBody struct {
-	Http map[string]interface{}
-	Mock map[string]interface{}
+	HttpBody map[string]interface{}
+	MockBody map[string]interface{}
 }
 
 type Parameters struct {
 	ReqHeader ReqHeader
+	ResHeader ResHeader
 	ReqBody   ReqBody
 }
 
