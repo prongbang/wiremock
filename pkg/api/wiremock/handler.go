@@ -1,6 +1,8 @@
 package wiremock
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -56,6 +58,10 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 
 		// Prepared request
 		body := core.BindBody(h.Routers.Request.Body, r)
+
+		// Log body
+		b, _ := json.Marshal(body)
+		fmt.Printf("%s\n", string(b))
 
 		// Process parameter matching
 		matching := h.UseCase.ParameterMatching(Parameters{

@@ -51,6 +51,7 @@ type Parameters struct {
 }
 
 type Cases struct {
+	Query    map[string]interface{} `yaml:"query"`
 	Body     map[string]interface{} `yaml:"body"`
 	Response Response               `yaml:"response"`
 }

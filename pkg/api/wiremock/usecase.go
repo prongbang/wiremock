@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/prongbang/wiremock/pkg/api/core"
@@ -26,6 +27,10 @@ func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]C
 	// Get request
 	body := map[string]interface{}{}
 	_ = json.NewDecoder(r.Body).Decode(&body)
+
+	// Log
+	b, _ := json.Marshal(body)
+	fmt.Printf("%s\n", string(b))
 
 	// Process header matching
 	require := map[string]interface{}{}
@@ -64,6 +69,10 @@ func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]C
 		vMock.Response.FileName = path
 		if len(body) == 0 {
 			body = core.BindCaseBody(vMock.Body, r)
+
+			// Log
+			b, _ := json.Marshal(body)
+			log.Printf("%s\n", string(b))
 		}
 		for ck, cv := range vMock.Body {
 			vs := fmt.Sprintf("%v", cv)
