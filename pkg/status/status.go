@@ -4,13 +4,13 @@ import "fmt"
 
 func Banner() {
 	// http://patorjk.com/software/taag/#p=display&f=Small%20Slant&t=Wiremock
-	banner := `
+	var banner = `
   _      ___                        __  
  | | /| / (_)______ __ _  ___  ____/ /__
  | |/ |/ / / __/ -_)  ' \/ _ \/ __/  '_/
  |__/|__/_/_/  \__/_/_/_/\___/\__/_/\_\
 `
-	fmt.Println(banner)
+	fmt.Printf("%s", banner)
 }
 
 func Pattern() string {

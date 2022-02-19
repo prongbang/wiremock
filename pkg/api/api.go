@@ -22,7 +22,12 @@ type api struct {
 func (a *api) Register(cfg config.Config) {
 	status.Banner()
 
-	app := fiber.New()
+	conf := fiber.Config{
+		DisableStartupMessage: true,
+	}
+	app := fiber.New(conf)
+
+	// Middleware
 	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
@@ -40,10 +45,12 @@ func (a *api) Register(cfg config.Config) {
 		}, ","),
 	}))
 
+	// Router
 	a.Router.Initials(app)
 
 	status.Started(cfg.Port)
 
+	// Listening
 	err := app.Listen(fmt.Sprintf(":%s", cfg.Port))
 	if err != nil {
 		panic(err)

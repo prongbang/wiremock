@@ -5,7 +5,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"net/http"
 
-	"github.com/prongbang/wiremock/pkg/api/core"
+	"github.com/prongbang/wiremock/pkg/core"
 )
 
 // Handler is a model for handler router

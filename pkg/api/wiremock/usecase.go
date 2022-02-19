@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/wiremock/pkg/api/core"
 	"github.com/prongbang/wiremock/pkg/config"
+	"github.com/prongbang/wiremock/pkg/core"
 	"github.com/prongbang/wiremock/pkg/status"
 	"io/ioutil"
 )
@@ -25,10 +25,6 @@ func (u *useCase) CasesMatching(c *fiber.Ctx, path string, cases map[string]Case
 	// Get request
 	body := map[string]interface{}{}
 	_ = c.BodyParser(&body)
-
-	// Log
-	b, _ := json.Marshal(body)
-	fmt.Printf("%s\n", string(b))
 
 	// Process header matching
 	require := map[string]interface{}{}
@@ -67,10 +63,6 @@ func (u *useCase) CasesMatching(c *fiber.Ctx, path string, cases map[string]Case
 		vMock.Response.FileName = path
 		if len(body) == 0 {
 			body = core.BindCaseBody(vMock.Body, c)
-
-			// Log
-			bd, _ := json.Marshal(body)
-			fmt.Printf("%s\n", string(bd))
 		}
 		for ck, cv := range vMock.Body {
 			vs := fmt.Sprintf("%v", cv)
@@ -117,7 +109,7 @@ func (u *useCase) ParameterMatching(params Parameters) Matching {
 			continue
 		}
 		if params.ReqBody.HttpBody[k] == nil {
-			errors[k] = "Require " + k
+			errors[k] = "Require field " + k
 		} else {
 			errors[k] = "The " + k + " not match"
 		}

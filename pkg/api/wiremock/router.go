@@ -46,7 +46,6 @@ func (r *route) Initial(app *fiber.App) {
 				request := routers.Request
 				routers.Response.FileName = f.Name()
 				handle := NewHandler(r.UseCase, routers)
-				//router.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
 				app.Add(request.Method, request.URL, handle.Handle)
 			}
 		}
