@@ -2,8 +2,8 @@ package wiremock
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/wiremock/pkg/config"
-	"github.com/prongbang/wiremock/pkg/status"
+	"github.com/prongbang/wiremock/v2/pkg/config"
+	"github.com/prongbang/wiremock/v2/pkg/status"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )

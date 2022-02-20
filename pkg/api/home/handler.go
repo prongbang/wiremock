@@ -3,7 +3,7 @@ package home
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/wiremock/pkg/config"
+	"github.com/prongbang/wiremock/v2/pkg/config"
 )
 
 type Handler interface {

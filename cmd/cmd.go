@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"github.com/prongbang/wiremock/pkg/api"
-	"github.com/prongbang/wiremock/pkg/api/home"
-	"github.com/prongbang/wiremock/pkg/api/wiremock"
-	"github.com/prongbang/wiremock/pkg/config"
+	"github.com/prongbang/wiremock/v2/pkg/api"
+	"github.com/prongbang/wiremock/v2/pkg/api/home"
+	"github.com/prongbang/wiremock/v2/pkg/api/wiremock"
+	"github.com/prongbang/wiremock/v2/pkg/config"
 )
 
 func Run(conf config.Config) {

@@ -2,8 +2,8 @@ package api
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/wiremock/pkg/api/home"
-	"github.com/prongbang/wiremock/pkg/api/wiremock"
+	"github.com/prongbang/wiremock/v2/pkg/api/home"
+	"github.com/prongbang/wiremock/v2/pkg/api/wiremock"
 )
 
 type Routers interface {

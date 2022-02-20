@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/wiremock/pkg/config"
-	"github.com/prongbang/wiremock/pkg/core"
-	"github.com/prongbang/wiremock/pkg/status"
+	"github.com/prongbang/wiremock/v2/pkg/config"
+	"github.com/prongbang/wiremock/v2/pkg/core"
+	"github.com/prongbang/wiremock/v2/pkg/status"
 	"io/ioutil"
 )
 
