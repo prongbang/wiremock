@@ -1,9 +1,10 @@
-module github.com/prongbang/wiremock
+module github.com/prongbang/wiremock/v2
 
-go 1.14
+go 1.16
 
 require (
-	github.com/gorilla/handlers v1.4.2
-	github.com/gorilla/mux v1.7.4
-	gopkg.in/yaml.v2 v2.2.8
+	github.com/gofiber/fiber/v2 v2.27.0
+	github.com/klauspost/compress v1.14.3 // indirect
+	golang.org/x/sys v0.0.0-20220209214540-3681064d5158 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )

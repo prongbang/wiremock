@@ -1,15 +1,16 @@
 package wiremock
 
 import (
-	"log"
+	"fmt"
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 
-	"github.com/prongbang/wiremock/pkg/api/core"
+	"github.com/prongbang/wiremock/v2/pkg/core"
 )
 
 // Handler is a model for handler router
 type Handler interface {
-	Handle(w http.ResponseWriter, r *http.Request)
+	Handle(c *fiber.Ctx) error
 }
 
 type handler struct {
@@ -17,68 +18,61 @@ type handler struct {
 	Routers Routers
 }
 
-func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
-
-	// Reading form values
-	r.ParseForm()
-
-	// Log
-	log.Printf("%s %s %s\n", r.RemoteAddr, r.Method, r.URL)
+func (h *handler) Handle(c *fiber.Ctx) error {
 
 	// Prepared request
-	header := core.BindHeader(h.Routers.Request.Header, r)
+	httpHeader := core.BindHeader(h.Routers.Request.Header, c)
 
 	// Prepared response
-	w.Header().Set("Content-Type", "application/json")
+	if len(h.Routers.Response.Header) == 0 {
+		c.Response().Header.Set("Content-Type", "application/json")
+	}
+	for k, v := range h.Routers.Response.Header {
+		c.Set(k, fmt.Sprintf("%v", v))
+	}
 
 	// Process cases matching
 	if len(h.Routers.Request.Cases) > 0 {
 
 		// Process cases matching
-		matching := h.UseCase.CasesMatching(r, h.Routers.Response.FileName, h.Routers.Request.Cases, Parameters{
+		matching := h.UseCase.CasesMatching(c, h.Routers.Response.FileName, h.Routers.Request.Cases, Parameters{
 			ReqHeader: ReqHeader{
-				Http: header,
-				Mock: h.Routers.Request.Header,
+				HttpHeader: httpHeader,
+				MockHeader: h.Routers.Request.Header,
 			},
 		})
 
 		// Process response
 		if matching.IsMatch {
-			w.WriteHeader(matching.Case.Response.Status)
 			response := h.UseCase.GetMockResponse(matching.Case.Response)
-			_, _ = w.Write(response)
-		} else {
-			w.WriteHeader(http.StatusBadRequest)
-			_, _ = w.Write(matching.Result)
+			return c.Status(matching.Case.Response.Status).SendString(string(response))
 		}
 
-	} else {
-
-		// Prepared request
-		body := core.BindBody(h.Routers.Request.Body, r)
-
-		// Process parameter matching
-		matching := h.UseCase.ParameterMatching(Parameters{
-			ReqHeader: ReqHeader{
-				Http: header,
-				Mock: h.Routers.Request.Header,
-			},
-			ReqBody: ReqBody{
-				Http: body,
-				Mock: h.Routers.Request.Body,
-			},
-		})
-
-		// Prepared response
-		if matching.IsMatch {
-			w.WriteHeader(h.Routers.Response.Status)
-			response := h.UseCase.GetMockResponse(h.Routers.Response)
-			_, _ = w.Write(response)
-		} else {
-			w.WriteHeader(http.StatusBadRequest)
-			_, _ = w.Write(matching.Result)
-		}
+		return c.Status(http.StatusBadRequest).SendString(string(matching.Result))
 	}
+
+	// Prepared request
+	body := core.BindBody(h.Routers.Request.Body, c)
+
+	// Process parameter matching
+	matching := h.UseCase.ParameterMatching(Parameters{
+		ReqHeader: ReqHeader{
+			HttpHeader: httpHeader,
+			MockHeader: h.Routers.Request.Header,
+		},
+		ReqBody: ReqBody{
+			HttpBody: body,
+			MockBody: h.Routers.Request.Body,
+		},
+	})
+
+	// Prepared response
+	if matching.IsMatch {
+		response := h.UseCase.GetMockResponse(h.Routers.Response)
+		return c.Status(h.Routers.Response.Status).SendString(string(response))
+	}
+
+	return c.Status(http.StatusBadRequest).SendString(string(matching.Result))
 }
 
 // NewHandler a instance

@@ -6,6 +6,24 @@
 
 ### Run with Docker
 
+#### Version 1.0.+
+
+Support matching routes with [gorilla/mux](https://github.com/gorilla/mux#matching-routes)
+
+```shell
+docker pull prongbang/wiremock:1.3.1
+```
+
+#### Version 2.0.+
+
+Support matching routes with [gofiber/fiber](https://docs.gofiber.io/guide/routing)
+
+```shell
+docker pull prongbang/wiremock:2.0.0
+```
+
+### Run with Docker Compose
+
 ```yaml
 version: '3.7'
 services:
@@ -24,7 +42,7 @@ $ docker-compose up -d
 ### Run with Golang
 
 ```shell script
-$ go get -u github.com/prongbang/wiremock
+$ go get -u github.com/prongbang/wiremock/v2
 $ cd project
 ```
 
@@ -48,7 +66,6 @@ $ wiremock -port=9000
  | |/ |/ / / __/ -_)  ' \/ _ \/ __/  '_/
  |__/|__/_/_/  \__/_/_/_/\___/\__/_/\_\
 
-
  -> wiremock server started on :8000
 ```
 
@@ -56,9 +73,9 @@ $ wiremock -port=9000
 
 [https://github.com/prongbang/wiremock-example](https://github.com/prongbang/wiremock-example)
 
-## Matching Routes using gorilla/mux
+## Matching Routes using gofiber/fiber
 
-Read doc [https://github.com/gorilla/mux#matching-routes](https://github.com/gorilla/mux#matching-routes)
+Read doc [https://docs.gofiber.io/guide/routing](https://docs.gofiber.io/guide/routing)
 
 ## Setup project
 
@@ -120,7 +137,7 @@ routes:
   get_user:
     request:
       method: "GET"
-      url: "/api/v1/user/{id:[0-9]+}"
+      url: "/api/v1/user/:id"
     response:
       status: 200
       body_file: user.json
@@ -137,6 +154,8 @@ routes:
 
 ### User with multiple case
 
+```*``` - field required.
+
 ```yaml
 routes:
   users:
@@ -146,19 +165,6 @@ routes:
       header:
         Api-Key: "ABC"
       cases:
-        user_history:
-          body:
-            action: "transaction"
-          response:
-            status: 200
-            body_file: user-history.json
-        user_check_consent:
-          body:
-            action: "consent"
-            accept: ""
-          response:
-            status: 200
-            body_file: user-check-consent.json
         user_accept_consent:
           body:
             action: "consent"
@@ -174,5 +180,3 @@ routes:
             status: 200
             body_file: profile-self.json
 ```
-
-```*``` - field required.

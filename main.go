@@ -4,8 +4,8 @@ import (
 	"flag"
 	"os"
 
-	"github.com/prongbang/wiremock/cmd"
-	"github.com/prongbang/wiremock/pkg/config"
+	"github.com/prongbang/wiremock/v2/cmd"
+	"github.com/prongbang/wiremock/v2/pkg/config"
 )
 
 func main() {
