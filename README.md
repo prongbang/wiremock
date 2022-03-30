@@ -19,7 +19,7 @@ docker pull prongbang/wiremock:1.3.1
 Support matching routes with [gofiber/fiber](https://docs.gofiber.io/guide/routing)
 
 ```shell
-docker pull prongbang/wiremock:2.0.0
+docker pull prongbang/wiremock:2.0.1
 ```
 
 ### Run with Docker Compose
