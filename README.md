@@ -2,24 +2,19 @@
 
 > [Wiremock](https://hub.docker.com/r/prongbang/wiremock) Minimal Mock your APIs 
 
-## How to run
+```shell script
+  _      ___                        __  
+ | | /| / (_)______ __ _  ___  ____/ /__
+ | |/ |/ / / __/ -_)  ' \/ _ \/ __/  '_/
+ |__/|__/_/_/  \__/_/_/_/\___/\__/_/\_\
+
+ -> wiremock server started on :8000
+```
 
 ### Run with Docker
 
-#### Version 1.0.+
-
-Support matching routes with [gorilla/mux](https://github.com/gorilla/mux#matching-routes)
-
 ```shell
-docker pull prongbang/wiremock:1.3.1
-```
-
-#### Version 2.0.+
-
-Support matching routes with [gofiber/fiber](https://docs.gofiber.io/guide/routing)
-
-```shell
-docker pull prongbang/wiremock:2.0.1
+docker pull prongbang/wiremock:latest
 ```
 
 ### Run with Docker Compose
@@ -58,24 +53,13 @@ $ wiremock
 $ wiremock -port=9000
 ```
 
-- Running
-
-```shell script
-  _      ___                        __  
- | | /| / (_)______ __ _  ___  ____/ /__
- | |/ |/ / / __/ -_)  ' \/ _ \/ __/  '_/
- |__/|__/_/_/  \__/_/_/_/\___/\__/_/\_\
-
- -> wiremock server started on :8000
-```
-
 ### Example Project
 
 [https://github.com/prongbang/wiremock-example](https://github.com/prongbang/wiremock-example)
 
-## Matching Routes using gofiber/fiber
+## Matching Routes using gorilla/mux
 
-Read doc [https://docs.gofiber.io/guide/routing](https://docs.gofiber.io/guide/routing)
+Read doc [gorilla/mux](https://github.com/gorilla/mux#matching-routes)
 
 ## Setup project
 
@@ -137,7 +121,7 @@ routes:
   get_user:
     request:
       method: "GET"
-      url: "/api/v1/user/:id"
+      url: "/api/v1/user/{id:[0-9]+}"
     response:
       status: 200
       body_file: user.json

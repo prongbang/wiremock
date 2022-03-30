@@ -2,7 +2,6 @@ package wiremock
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"net/http"
 
 	"github.com/prongbang/wiremock/v2/pkg/core"
@@ -10,7 +9,7 @@ import (
 
 // Handler is a model for handler router
 type Handler interface {
-	Handle(c *fiber.Ctx) error
+	Handle(w http.ResponseWriter, r *http.Request)
 }
 
 type handler struct {
@@ -18,24 +17,29 @@ type handler struct {
 	Routers Routers
 }
 
-func (h *handler) Handle(c *fiber.Ctx) error {
+func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
+	// Reading form values
+	maxMemory := 32 << 20 // 32Mb
+	if err := r.ParseMultipartForm(int64(maxMemory)); err != nil {
+		_ = r.ParseForm()
+	}
 
 	// Prepared request
-	httpHeader := core.BindHeader(h.Routers.Request.Header, c)
+	httpHeader := core.BindHeader(h.Routers.Request.Header, r)
 
 	// Prepared response
 	if len(h.Routers.Response.Header) == 0 {
-		c.Response().Header.Set("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
 	}
 	for k, v := range h.Routers.Response.Header {
-		c.Set(k, fmt.Sprintf("%v", v))
+		w.Header().Set(k, fmt.Sprintf("%v", v))
 	}
 
 	// Process cases matching
 	if len(h.Routers.Request.Cases) > 0 {
 
 		// Process cases matching
-		matching := h.UseCase.CasesMatching(c, h.Routers.Response.FileName, h.Routers.Request.Cases, Parameters{
+		matching := h.UseCase.CasesMatching(r, h.Routers.Response.FileName, h.Routers.Request.Cases, Parameters{
 			ReqHeader: ReqHeader{
 				HttpHeader: httpHeader,
 				MockHeader: h.Routers.Request.Header,
@@ -45,14 +49,17 @@ func (h *handler) Handle(c *fiber.Ctx) error {
 		// Process response
 		if matching.IsMatch {
 			response := h.UseCase.GetMockResponse(matching.Case.Response)
-			return c.Status(matching.Case.Response.Status).SendString(string(response))
+			w.WriteHeader(matching.Case.Response.Status)
+			_, _ = w.Write(response)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write(matching.Result)
 		}
-
-		return c.Status(http.StatusBadRequest).SendString(string(matching.Result))
+		return
 	}
 
 	// Prepared request
-	body := core.BindBody(h.Routers.Request.Body, c)
+	body := core.BindBody(h.Routers.Request.Body, r)
 
 	// Process parameter matching
 	matching := h.UseCase.ParameterMatching(Parameters{
@@ -69,10 +76,12 @@ func (h *handler) Handle(c *fiber.Ctx) error {
 	// Prepared response
 	if matching.IsMatch {
 		response := h.UseCase.GetMockResponse(h.Routers.Response)
-		return c.Status(h.Routers.Response.Status).SendString(string(response))
+		w.WriteHeader(h.Routers.Response.Status)
+		_, _ = w.Write(response)
+	} else {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write(matching.Result)
 	}
-
-	return c.Status(http.StatusBadRequest).SendString(string(matching.Result))
 }
 
 // NewHandler a instance

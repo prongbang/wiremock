@@ -1,13 +1,13 @@
 package api
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gorilla/mux"
 	"github.com/prongbang/wiremock/v2/pkg/api/home"
 	"github.com/prongbang/wiremock/v2/pkg/api/wiremock"
 )
 
 type Routers interface {
-	Initials(app *fiber.App)
+	Initials(route *mux.Router)
 }
 
 type routers struct {
@@ -15,9 +15,9 @@ type routers struct {
 	WiremockRoute wiremock.Router
 }
 
-func (r *routers) Initials(app *fiber.App) {
-	r.HomeRoute.Initial(app)
-	r.WiremockRoute.Initial(app)
+func (r *routers) Initials(route *mux.Router) {
+	r.HomeRoute.Initial(route)
+	r.WiremockRoute.Initial(route)
 }
 
 func NewRouters(

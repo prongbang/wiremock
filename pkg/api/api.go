@@ -2,12 +2,12 @@ package api
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"strings"
-
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"github.com/prongbang/wiremock/v2/pkg/config"
 	"github.com/prongbang/wiremock/v2/pkg/status"
+	"log"
+	"net/http"
 )
 
 type API interface {
@@ -21,38 +21,18 @@ type api struct {
 func (a *api) Register(cfg config.Config) {
 	status.Banner()
 
-	conf := fiber.Config{
-		DisableStartupMessage: true,
-	}
-	app := fiber.New(conf)
-
-	// Middleware
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "*",
-		AllowMethods: strings.Join([]string{
-			fiber.MethodGet,
-			fiber.MethodPost,
-			fiber.MethodHead,
-			fiber.MethodPut,
-			fiber.MethodDelete,
-			fiber.MethodPatch,
-			fiber.MethodOptions,
-			fiber.MethodTrace,
-			fiber.MethodConnect,
-		}, ","),
-	}))
+	r := mux.NewRouter()
+	headers := handlers.AllowedHeaders([]string{"*"})
+	methods := handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodTrace, http.MethodDelete, http.MethodOptions})
+	origins := handlers.AllowedOrigins([]string{"*"})
 
 	// Router
-	a.Router.Initials(app)
+	a.Router.Initials(r)
 
 	status.Started(cfg.Port)
 
 	// Listening
-	err := app.Listen(fmt.Sprintf(":%s", cfg.Port))
-	if err != nil {
-		panic(err)
-	}
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), handlers.CORS(headers, methods, origins)(r)))
 }
 
 // NewAPI provide apis

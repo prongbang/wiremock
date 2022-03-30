@@ -3,34 +3,48 @@ package wiremock
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/wiremock/v2/pkg/config"
 	"github.com/prongbang/wiremock/v2/pkg/core"
 	"github.com/prongbang/wiremock/v2/pkg/status"
+	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"net/http"
 )
 
 type UseCase interface {
-	CasesMatching(c *fiber.Ctx, path string, cases map[string]Cases, params Parameters) CaseMatching
+	CasesMatching(r *http.Request, path string, cases map[string]Cases, params Parameters) CaseMatching
 	ParameterMatching(params Parameters) Matching
 	GetMockResponse(resp Response) []byte
 	ReadSourceRouteYml(routeName string) []byte
+	GetRoutes(filepath string) Routes
 }
 
 type useCase struct {
 }
 
-func (u *useCase) CasesMatching(c *fiber.Ctx, path string, cases map[string]Cases, params Parameters) CaseMatching {
+func (u *useCase) GetRoutes(filepath string) Routes {
+	// Read yaml config
+	source := u.ReadSourceRouteYml(filepath)
+
+	// Unmarshal yaml config
+	routes := Routes{}
+	err := yaml.Unmarshal(source, &routes)
+	if err != nil {
+		panic(err)
+	}
+	return routes
+}
+
+func (u *useCase) CasesMatching(r *http.Request, path string, cases map[string]Cases, params Parameters) CaseMatching {
 
 	// Get request
-	body := map[string]interface{}{}
-	_ = c.BodyParser(&body)
+	body := core.Body(r)
 
 	// Process header matching
 	require := map[string]interface{}{}
 	errors := map[string]interface{}{}
 	matchingHeader := 0
-	for k, v := range params.ReqBody.MockBody {
+	for k, v := range params.ReqHeader.MockHeader {
 		vs := fmt.Sprintf("%v", v)
 		ks := fmt.Sprintf("%v", params.ReqHeader.HttpHeader[k])
 		if vs == ks {
@@ -52,7 +66,7 @@ func (u *useCase) CasesMatching(c *fiber.Ctx, path string, cases map[string]Case
 	if err != nil {
 		result = []byte("{}")
 	}
-	matchingHeaderRequest := len(params.ReqBody.MockBody) == matchingHeader
+	matchingHeaderRequest := len(params.ReqHeader.MockHeader) == matchingHeader
 
 	// Process body matching
 	matchingBodyRequest := false
@@ -62,7 +76,7 @@ func (u *useCase) CasesMatching(c *fiber.Ctx, path string, cases map[string]Case
 		matchingBody := 0
 		vMock.Response.FileName = path
 		if len(body) == 0 {
-			body = core.BindCaseBody(vMock.Body, c)
+			body = core.BindCaseBody(vMock.Body, r)
 		}
 		for ck, cv := range vMock.Body {
 			vs := fmt.Sprintf("%v", cv)

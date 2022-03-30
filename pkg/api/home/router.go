@@ -1,19 +1,19 @@
 package home
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gorilla/mux"
 )
 
 type Router interface {
-	Initial(app *fiber.App)
+	Initial(route *mux.Router)
 }
 
 type router struct {
 	Handle Handler
 }
 
-func (r *router) Initial(app *fiber.App) {
-	app.Get("/", r.Handle.GetHome)
+func (r *router) Initial(route *mux.Router) {
+	route.HandleFunc("/", r.Handle.GetHome).Methods("GET")
 }
 
 func NewRouter(handle Handler) Router {
