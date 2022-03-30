@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"strings"
 
 	"github.com/prongbang/wiremock/v2/pkg/config"
@@ -28,7 +27,6 @@ func (a *api) Register(cfg config.Config) {
 	app := fiber.New(conf)
 
 	// Middleware
-	app.Use(logger.New())
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
 		AllowHeaders: "*",
