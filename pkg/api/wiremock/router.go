@@ -1,22 +1,21 @@
 package wiremock
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gorilla/mux"
 	"github.com/prongbang/wiremock/v2/pkg/config"
 	"github.com/prongbang/wiremock/v2/pkg/status"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 )
 
 type Router interface {
-	Initial(app *fiber.App)
+	Initial(route *mux.Router)
 }
 
 type route struct {
 	UseCase UseCase
 }
 
-func (r *route) Initial(app *fiber.App) {
+func (r *route) Initial(route *mux.Router) {
 
 	pattern := status.Pattern()
 
@@ -30,15 +29,8 @@ func (r *route) Initial(app *fiber.App) {
 	for _, f := range files {
 		if f.IsDir() {
 
-			// Read yaml config
-			source := r.UseCase.ReadSourceRouteYml(f.Name())
-
-			// Unmarshal yaml config
-			routes := Routes{}
-			err = yaml.Unmarshal(source, &routes)
-			if err != nil {
-				panic(err)
-			}
+			// Get routes from yaml config
+			routes := r.UseCase.GetRoutes(f.Name())
 
 			// Register routers
 			for rte := range routes.Routers {
@@ -46,7 +38,7 @@ func (r *route) Initial(app *fiber.App) {
 				request := routers.Request
 				routers.Response.FileName = f.Name()
 				handle := NewHandler(r.UseCase, routers)
-				app.Add(request.Method, request.URL, handle.Handle)
+				route.HandleFunc(request.URL, handle.Handle).Methods(request.Method)
 			}
 		}
 	}

@@ -2,20 +2,20 @@ package home
 
 import (
 	"fmt"
-	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/wiremock/v2/pkg/config"
+	"net/http"
 )
 
 type Handler interface {
-	GetHome(c *fiber.Ctx) error
+	GetHome(w http.ResponseWriter, r *http.Request)
 }
 
 type handler struct {
 	Cfg config.Config
 }
 
-func (h *handler) GetHome(c *fiber.Ctx) error {
-	return c.SendString(fmt.Sprintf("Wiremock server started on %s", h.Cfg.Port))
+func (h *handler) GetHome(w http.ResponseWriter, r *http.Request) {
+	_, _ = fmt.Fprint(w, "Wiremock server started on "+h.Cfg.Port)
 }
 
 func NewHandler(cfg config.Config) Handler {
