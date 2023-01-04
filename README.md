@@ -37,8 +37,7 @@ $ docker-compose up -d
 ### Run with Golang
 
 ```shell script
-$ go get -u github.com/prongbang/wiremock/v2
-$ cd project
+$ go install github.com/prongbang/wiremock/v2@latest
 ```
 
 #### Default port `8000`
