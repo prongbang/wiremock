@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  app_wiremock:
+    image: golang:alpine3.17
+    ports:
+      - "8000:8000"
+    volumes:
+      - ".:/go/src/wiremock"
+    working_dir: /go/src/wiremock
+    command: go run main.go
+    environment:
+      - ORIGIN_ALLOWED=https://wec-cms.web.app

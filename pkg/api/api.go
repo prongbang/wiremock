@@ -27,9 +27,11 @@ func (a *api) Register(cfg config.Config) {
 	headers := handlers.AllowedHeaders([]string{"*"})
 	methods := handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodTrace, http.MethodDelete, http.MethodOptions, http.MethodConnect})
 	originsAllowed := os.Getenv("ORIGIN_ALLOWED")
-	allowedOrigins := []string{"*"}
+	allowedOrigins := []string{}
 	if originsAllowed != "" {
 		allowedOrigins = append(allowedOrigins, core.ParseOrigins(originsAllowed)...)
+	} else {
+		allowedOrigins = []string{"*"}
 	}
 	origins := handlers.AllowedOrigins(allowedOrigins)
 

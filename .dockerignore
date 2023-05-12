@@ -1,2 +1,8 @@
 mock
+.DS_Store
 Dockerfile
+Makefile
+README.md
+docker-compose.yml
+.idea
+.gitignore
