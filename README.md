@@ -28,6 +28,8 @@ services:
       - "8000:8000"
     volumes:
       - "./mock:/mock"
+    environment:
+      - ORIGIN_ALLOWED=http://localhost:9000
 ```
 
 ```

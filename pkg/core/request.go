@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 )
 
 func Body(r *http.Request) map[string]interface{} {
@@ -58,4 +59,16 @@ func BindCaseBody(mockBody map[string]interface{}, r *http.Request) map[string]i
 		}
 	}
 	return data
+}
+
+func ParseOrigins(originAllowed string) []string {
+	origins := []string{}
+	if originAllowed != "" {
+		originList := strings.Split(originAllowed, ",")
+		for _, origin := range originList {
+			trimmedOrigin := strings.TrimSpace(origin)
+			origins = append(origins, trimmedOrigin)
+		}
+	}
+	return origins
 }
