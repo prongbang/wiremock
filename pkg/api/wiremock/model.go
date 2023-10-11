@@ -14,6 +14,7 @@ type Request struct {
 	URL    string                 `yaml:"url"`
 	Header map[string]interface{} `yaml:"header"`
 	Body   map[string]interface{} `yaml:"body"`
+	Query  map[string]interface{} `yaml:"query"`
 	Cases  map[string]Cases       `yaml:"cases"`
 }
 
@@ -50,9 +51,15 @@ type ReqBody struct {
 	MockBody map[string]interface{}
 }
 
+type ReqQuery struct {
+	HttpQuery map[string]interface{}
+	MockQuery map[string]interface{}
+}
+
 type Parameters struct {
 	ReqHeader ReqHeader
 	ResHeader ResHeader
+	ReqQuery  ReqQuery
 	ReqBody   ReqBody
 }
 

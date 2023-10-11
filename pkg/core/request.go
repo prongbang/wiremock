@@ -17,10 +17,30 @@ func Body(r *http.Request) map[string]interface{} {
 	return data
 }
 
+func Query(r *http.Request) map[string]interface{} {
+	queryParameters := r.URL.Query()
+	data := map[string]interface{}{}
+	for k := range queryParameters {
+		data[k] = queryParameters.Get(k)
+	}
+	return data
+}
+
 func Header(r *http.Request) map[string]interface{} {
 	data := map[string]interface{}{}
 	for k := range r.Header {
 		data[k] = r.Header.Get(k)
+	}
+	return data
+}
+
+func BindQuery(mockQuery map[string]interface{}, r *http.Request) map[string]interface{} {
+	queryParameters := r.URL.Query()
+	data := map[string]interface{}{}
+	for k := range mockQuery {
+		if queryParameters.Has(k) {
+			data[k] = queryParameters.Get(k)
+		}
 	}
 	return data
 }

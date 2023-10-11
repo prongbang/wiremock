@@ -61,11 +61,18 @@ func (h *handler) Handle(w http.ResponseWriter, r *http.Request) {
 	// Prepared request
 	body := core.BindBody(h.Routers.Request.Body, r)
 
+	// Prepared query
+	query := core.BindQuery(h.Routers.Request.Query, r)
+
 	// Process parameter matching
 	matching := h.UseCase.ParameterMatching(Parameters{
 		ReqHeader: ReqHeader{
 			HttpHeader: httpHeader,
 			MockHeader: h.Routers.Request.Header,
+		},
+		ReqQuery: ReqQuery{
+			HttpQuery: query,
+			MockQuery: h.Routers.Request.Query,
 		},
 		ReqBody: ReqBody{
 			HttpBody: body,

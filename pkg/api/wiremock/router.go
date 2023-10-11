@@ -4,7 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prongbang/wiremock/v2/pkg/config"
 	"github.com/prongbang/wiremock/v2/pkg/status"
-	"io/ioutil"
+	"os"
 )
 
 type Router interface {
@@ -20,7 +20,7 @@ func (r *route) Initial(route *mux.Router) {
 	pattern := status.Pattern()
 
 	// Read dir mock
-	files, err := ioutil.ReadDir(config.MockPath)
+	files, err := os.ReadDir(config.MockPath)
 	if err != nil {
 		panic(pattern)
 	}

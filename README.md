@@ -82,6 +82,8 @@ project
 
 ```shell script
 POST http://localhost:8000/api/v1/login
+Query
+  lang: "th"
 Header
   Api-Key: "ed2b7d14-3999-408e-9bb8-4ea739f2bcb5"
 Body
@@ -99,6 +101,8 @@ routes:
     request:
       method: "POST"
       url: "/api/v1/login"
+      query:
+        lang: "th" 
       header:
         Api-Key: "ed2b7d14-3999-408e-9bb8-4ea739f2bcb5"
       body:
@@ -149,6 +153,8 @@ routes:
     request:
       method: "POST"
       url: "/api/v1/user"
+      query:
+        lang: "XYZ"
       header:
         Api-Key: "ABC"
       cases:
